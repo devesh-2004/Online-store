@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar/Nav";
 import Recommended from "@/components/Recommended/Recommended";
 import Sidebar from "@/components/Sidebar/Sidebar";
@@ -13,52 +13,47 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedColor, setSelectedColor] = useState("all");
   const [selectedPrice, setSelectedPrice] = useState("all");
-  const [selectedCompany, setSelectedCompany] = useState("all"); // always lowercase
+  const [selectedCompany, setSelectedCompany] = useState("all");
 
-  // Re-run filter whenever a filter state changes
-  useEffect(() => {
-    filterProducts(
-      query,
-      selectedCategory,
-      selectedColor,
-      selectedPrice,
-      selectedCompany
-    );
-  }, [query, selectedCategory, selectedColor, selectedPrice, selectedCompany]);
-
-  // Centralized filtering
-  const filterProducts = ( search: string, category: string, color: string, price: string, company: string ) => {
-    
+  // Filtering logic
+  const filterProducts = (
+    search: string,
+    category: string,
+    color: string,
+    price: string,
+    company: string
+  ) => {
     let filtered = data;
 
-    // Search filter
     if (search) {
-      filtered = filtered.filter((item:any) =>
-        item.company.toLowerCase().includes(search.toLowerCase()) || item.title.toLowerCase().includes(search.toLowerCase())
+      filtered = filtered.filter(
+        (item: any) =>
+          item.company.toLowerCase().includes(search.toLowerCase()) ||
+          item.title.toLowerCase().includes(search.toLowerCase())
       );
     }
-    // Category filter
+
     if (category !== "all") {
       filtered = filtered.filter(
-        (item:any) => item.category.toLowerCase() === category.toLowerCase()
+        (item: any) => item.category.toLowerCase() === category.toLowerCase()
       );
     }
-    // Color filter
+
     if (color !== "all") {
       filtered = filtered.filter(
-        (item:any) => item.color.toLowerCase() === color.toLowerCase()
+        (item: any) => item.color.toLowerCase() === color.toLowerCase()
       );
     }
-    // Company filter
+
     if (company !== "all") {
       filtered = filtered.filter(
-        (item:any) => item.company.toLowerCase() === company.toLowerCase()
+        (item: any) => item.company.toLowerCase() === company.toLowerCase()
       );
     }
-    // Price filter
+
     if (price !== "all") {
-      filtered = filtered.filter((item:any) => {
-        const itemPrice = parseFloat(item.newPrice); // use consistent field
+      filtered = filtered.filter((item: any) => {
+        const itemPrice = parseFloat(item.newPrice);
         switch (price) {
           case "0-50":
             return itemPrice <= 50;
@@ -73,32 +68,84 @@ export default function Home() {
         }
       });
     }
+
     setProducts(filtered);
   };
 
+  // Handlers
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery.toLowerCase());
+    filterProducts(
+      searchQuery,
+      selectedCategory,
+      selectedColor,
+      selectedPrice,
+      selectedCompany
+    );
+  };
 
-  // Handlers only update state, filtering runs via useEffect
-  const handleSearch = (query: string) => 
-    setQuery(query.toLowerCase());
-  const handleCategory = (category: string) =>
+  const handleCategory = (category: string) => {
     setSelectedCategory(category.toLowerCase());
-  const handleColor = (color: string) => setSelectedColor(color.toLowerCase());
-  const handlePrice = (price: string) => setSelectedPrice(price);
-  const handleCompany = (company: string) =>
+    filterProducts(
+      query,
+      category.toLowerCase(),
+      selectedColor,
+      selectedPrice,
+      selectedCompany
+    );
+  };
+
+  const handleColor = (color: string) => {
+    setSelectedColor(color.toLowerCase());
+    filterProducts(
+      query,
+      selectedCategory,
+      color.toLowerCase(),
+      selectedPrice,
+      selectedCompany
+    );
+  };
+
+  const handlePrice = (price: string) => {
+    setSelectedPrice(price);
+    filterProducts(
+      query,
+      selectedCategory,
+      selectedColor,
+      price,
+      selectedCompany
+    );
+  };
+
+  const handleCompany = (company: string) => {
     setSelectedCompany(company.toLowerCase());
+    filterProducts(
+      query,
+      selectedCategory,
+      selectedColor,
+      selectedPrice,
+      company.toLowerCase()
+    );
+  };
 
   return (
     <>
       <Navbar onSearch={handleSearch} />
       <Recommended onFilterByCompany={handleCompany} />
-      <main className="flex">
+
+      <main className="flex flex-col lg:flex-row gap-6 px-4 md:px-8 py-6">
+        {/* Sidebar */}
         <Sidebar
           onCategoryChange={handleCategory}
           onColorChange={handleColor}
           onPriceChange={handlePrice}
         />
-        <Product products={products} />
+        {/* Products */}
+        <div className="flex-1">
+          <Product product1={products} />
+        </div>
       </main>
+
       <Footer />
     </>
   );

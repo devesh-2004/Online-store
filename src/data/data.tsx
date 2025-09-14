@@ -23,7 +23,6 @@ export const data:any = [
     color: "red",
     category: "sneakers",
   },
-
   {
     img: "https://m.media-amazon.com/images/I/51+P9uAvb1L._AC_UY695_.jpg",
     title: "Nike Waffle One Sneaker",
